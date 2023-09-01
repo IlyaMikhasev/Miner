@@ -14,6 +14,7 @@ namespace Miner
     internal class Cell
     {
         private Button myButton;
+        static int count = 0;
         public Button button { get { return myButton;} }
         private string Name;
         public string name { get { return Name; } }
@@ -27,16 +28,14 @@ namespace Miner
         public string reverse { get { return ReverseSide; } }
         private int CountMineArround = 0;
         public int countMineArround { get { return CountMineArround; } }
+        public static int countUnlockPud = 0;
         public Cell(string name, int x, int y, string _content = " ", bool printMine = false)
         {
             this.myButton = new Button();
             this.x = x;
             this.y = y;
-            this.myButton.Height = 70;
-            this.myButton.Width = 70;
+            this.myButton.HorizontalAlignment = HorizontalAlignment.Stretch;
             this.myButton.FontSize = 20;
-            this.myButton.HorizontalAlignment = HorizontalAlignment.Center;
-            this.myButton.VerticalAlignment = VerticalAlignment.Center;
             this.Name = name; 
             this.myButton.Content = _content;
             this.myButton.Click += MyButton_Click;
@@ -44,12 +43,39 @@ namespace Miner
 
         private void MyButton_Click(object sender, RoutedEventArgs e)
         {
-            this.myButton.Content = this.ReverseSide;
-           
+            if (IsMine) {
+                Image image = new Image();
+                BitmapImage bitmapImage = new BitmapImage(new Uri("/IMG/Bomb.jpg", UriKind.Relative));
+                image.Source = bitmapImage;
+                this.button.Content = image;
+                var resaultdialog = MessageBox.Show("Game Over","Вы подорвались",MessageBoxButton.OKCancel);
+                if (resaultdialog== MessageBoxResult.OK)
+                {
+                    System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
+                    Application.Current.Shutdown();
+                }
+            }
+            else
+            {
+                if (this.myButton.Content != this.ReverseSide)
+                {
+                    countUnlockPud++;
+                }
+                this.myButton.Content = this.ReverseSide;
+                switch (ReverseSide)
+                {
+                    case "": this.button.Background = Brushes.White; break;
+                    case "1": this.button.Background = Brushes.LightGreen; break;
+                    case "2": this.button.Background = Brushes.LightBlue; break;
+                    case "3": this.button.Background = Brushes.Yellow; break;
+                    case "4": this.button.Background = Brushes.IndianRed; break;
+                    case "5": this.button.Background = Brushes.Red; break;
+                    default:
+                        break;
+                }
+            }
         }
-        private void setReverse(string _reverse) {
-            this.ReverseSide = _reverse;
-        }
+
         public void setBomb() {
             this.IsMine = true;
             this.ReverseSide = "BOMB";
